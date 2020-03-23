@@ -86,12 +86,12 @@ func main() {
 		skuID string
 	}
 
-	date1 := time.Date(2020, time.March, 23, 9, 59, 59, 250000000, time.UTC)
-	date2 := time.Date(2020, time.March, 23, 19, 59, 59, 250000000, time.UTC)
+	date1 := time.Date(2020, time.March, 24, 9, 59, 59, 250000000, time.Local)
+	// date2 := time.Date(2020, time.March, 23, 19, 59, 59, 250000000, time.Local)
 	pool := []Job{
 		Job{date1, "100011521400"},
-		Job{date2, "100011551632"},
-		Job{date2, "100006394713"},
+		// Job{date2, "100011551632"},
+		// Job{date2, "100006394713"},
 	}
 	client := &http.Client{
 		Jar: jar,
@@ -106,7 +106,8 @@ func main() {
 		go func(job Job) {
 			log.Println("等待到达", job.date.String())
 			for true {
-				if job.date.Unix() >= time.Now().Unix() {
+				// fmt.Print(job.date.Unix() <= time.Now().Unix())
+				if job.date.Unix() <= time.Now().Unix() {
 					log.Println("获取链接")
 					requestItemPage(client, job.skuID)
 					var b []byte
