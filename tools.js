@@ -25,6 +25,7 @@ class Tools {
     this.initInfo = null;
     this.reserveUrl = 'url';
     this.hasGetCode = false;
+    this.cookieJson = ''
 
     // this.getLocalCookie();
     // const cookie = fs.readFile()
@@ -32,7 +33,7 @@ class Tools {
   }
 
   getLoginStatus = async () => {
-    if (this.isLogin) return true;
+    if (this.isLogin) return await this.validateCookies();
     else {
       await this.getLocalCookie();
       return this.isLogin;
@@ -46,6 +47,7 @@ class Tools {
     try {
       const cookieJson = await readFile(pathname, 'utf-8');
       let resolve = '';
+      // this.cookieJson = cookie
       const p = new Promise(r => {
         resolve = r;
       });
@@ -118,7 +120,7 @@ class Tools {
       // qrcodeTerminal.generate(this.qrUrl, { small: true });
       return;
     }
-    this.hasGetCode = true
+    this.hasGetCode = true;
     /**
      *
      */
@@ -299,7 +301,7 @@ class Tools {
               }
             });
           } catch (e) {
-            console.log('request seckillUrl err')
+            console.log('request seckillUrl err');
           }
 
           return seckillUrl;
@@ -360,7 +362,6 @@ class Tools {
         console.info('生成提交抢购订单所需参数...', retry);
         // self.seckill_init_info[self.sku_id] = self._get_seckill_init_info()
         const initInfo = await this.getInitInfo(skuId);
-        // if(initInfo)
         const defaultAddress = initInfo.addressList[0];
         const invoiceInfo = initInfo.invoiceInfo || {};
         const token = initInfo.token;
