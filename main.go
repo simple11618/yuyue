@@ -86,12 +86,14 @@ func main() {
 		skuID string
 	}
 
-	date1 := time.Date(2020, time.March, 24, 9, 59, 59, 250000000, time.Local)
-	// date2 := time.Date(2020, time.March, 23, 19, 59, 59, 250000000, time.Local)
+	// date1 := time.Date(2020, time.March, 24, 9, 59, 59, 250000000, time.Local)
+	// date1 = time.Date(2020, time.March, 24, 17, 10, 59, 250000000, time.Local)
+
+	date2 := time.Date(2020, time.March, 24, 19, 59, 59, 250000000, time.Local)
 	pool := []Job{
-		Job{date1, "100011521400"},
-		// Job{date2, "100011551632"},
-		// Job{date2, "100006394713"},
+		// Job{date1, "100011521400"},
+		Job{date2, "100011551632"},
+		Job{date2, "100006394713"},
 	}
 	client := &http.Client{
 		Jar: jar,
@@ -105,6 +107,7 @@ func main() {
 	for _, job := range pool {
 		go func(job Job) {
 			log.Println("等待到达", job.date.String())
+			var result SubmitResult
 			for true {
 				// fmt.Print(job.date.Unix() <= time.Now().Unix())
 				if job.date.Unix() <= time.Now().Unix() {
@@ -128,13 +131,12 @@ func main() {
 						log.Print("解析 orderData 失败")
 					}
 					values := getEncodeValues(orderData, job.skuID)
-					// fmt.Println(orderData)
 					retry := 30
 					for retry > 0 {
 						retry--
 						log.Println("提交订单", retry)
 						bytes, err := submitOrder(client, job.skuID, values)
-						var result SubmitResult
+
 						if err == nil {
 							err := json.Unmarshal(bytes, &result)
 							if err != nil {
@@ -152,14 +154,12 @@ func main() {
 						}
 
 						time.Sleep(50 * time.Millisecond)
-						// break
 					}
-					c <- 1
 					sendMessage(client, "")
+					break
 				}
-				// 到时间执行一次
-				return
 			}
+			c <- 1
 		}(job)
 	}
 
